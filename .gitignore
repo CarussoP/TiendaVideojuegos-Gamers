@@ -1,0 +1,14 @@
+# Ignore Maven / Eclipse build and IDE metadata
+target/
+.classpath
+.project
+.settings/
+.idea/
+*.iml
+*.class
+*.war
+*.ear
+.DS_Store
+*.log
+.metadata/
+bin/

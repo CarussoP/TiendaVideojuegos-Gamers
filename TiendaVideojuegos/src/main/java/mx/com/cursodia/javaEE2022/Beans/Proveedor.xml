@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hibernate-mapping package="mx.com.cursodia.javaEE2022.Beans">
+	<class name="Proveedor" table="cat_proveedores">
+		<id name="cat_prov_id" type="int" column="cat_prov_id">
+			<generator class="native" />
+		</id>
+		<property name="cat_prov_nombre" type="string" column="cat_prov_nombre" />
+		<property name="cat_prov_tel" type="string" column="cat_prov_tel" />
+		<property name="cat_prov_correo" type="string" column="cat_prov_correo" />
+		<property name="cat_prov_direccion" type="string" column="cat_prov_direccion" />
+	</class>
+</hibernate-mapping>

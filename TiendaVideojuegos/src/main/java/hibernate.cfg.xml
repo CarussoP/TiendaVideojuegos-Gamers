@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hibernate-configuration>
+<session-factory>
+<property name="connection.driver_class">com.mysql.cj.jdbc.Driver</property>
+<property name="connection.url">jdbc:mysql://localhost/gamers?serverTimezone=UTC</property>
+<property name="connection.username">root</property>
+<property name="connection.password"></property>
+<property name="connection.pool_size">5</property>
+<property name="dialect">org.hibernate.dialect.MySQL5Dialect</property>
+<property name="show_sql">true</property>
+<mapping resource="mx/com/cursodia/javaEE2022/Beans/Plataforma.xml"/>
+<mapping resource="mx/com/cursodia/javaEE2022/Beans/Proveedor.xml"/>
+<mapping resource="mx/com/cursodia/javaEE2022/Beans/VideojuegoCatalogo.xml"/>
+<mapping resource="mx/com/cursodia/javaEE2022/Beans/ProveedorPlataforma.xml"/>
+<mapping resource="mx/com/cursodia/javaEE2022/Beans/Videojuego.xml"/>
+</session-factory>
+</hibernate-configuration>

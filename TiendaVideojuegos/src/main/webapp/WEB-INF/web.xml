@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd" version="3.1">
+  <display-name>TiendaVideojuegos</display-name>
+    <error-page>
+  		<exception-type>java.lang.RuntimeException</exception-type>
+  		<location>/Error.jsp</location>
+  </error-page>
+  <welcome-file-list>
+    <welcome-file>index.jsp</welcome-file>
+    <welcome-file>MostrarVideojuegos.do</welcome-file>
+  </welcome-file-list>
+
+  <!-- Dominio Videojuegos (la oferta proveedor-titulo) -->
+  <servlet>
+  	<servlet-name>ControladorVideojuegos</servlet-name>
+  	<servlet-class>mx.com.cursodia.javaEE2022.controlador.videojuegos.ControladorVideojuegos</servlet-class>
+  </servlet>
+  <servlet-mapping>
+  	<servlet-name>ControladorVideojuegos</servlet-name>
+  	<url-pattern>*.do</url-pattern>
+  </servlet-mapping>
+
+  <!-- Dominio Proveedores (cat_proveedores) -->
+  <servlet>
+  	<servlet-name>ControladorProveedores</servlet-name>
+  	<servlet-class>mx.com.cursodia.javaEE2022.controlador.proveedores.ControladorProveedores</servlet-class>
+  </servlet>
+  <servlet-mapping>
+  	<servlet-name>ControladorProveedores</servlet-name>
+  	<url-pattern>*.pro</url-pattern>
+  </servlet-mapping>
+
+  <!-- Dominio Plataformas (cat_plataformas) -->
+  <servlet>
+  	<servlet-name>ControladorPlataformas</servlet-name>
+  	<servlet-class>mx.com.cursodia.javaEE2022.controlador.plataformas.ControladorPlataformas</servlet-class>
+  </servlet>
+  <servlet-mapping>
+  	<servlet-name>ControladorPlataformas</servlet-name>
+  	<url-pattern>*.pla</url-pattern>
+  </servlet-mapping>
+
+  <!-- Dominio Asignaciones (proveedores_plataformas) -->
+  <servlet>
+  	<servlet-name>ControladorAsignaciones</servlet-name>
+  	<servlet-class>mx.com.cursodia.javaEE2022.controlador.asignaciones.ControladorAsignaciones</servlet-class>
+  </servlet>
+  <servlet-mapping>
+  	<servlet-name>ControladorAsignaciones</servlet-name>
+  	<url-pattern>*.asig</url-pattern>
+  </servlet-mapping>
+</web-app>

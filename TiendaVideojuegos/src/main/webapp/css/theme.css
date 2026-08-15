@@ -1,0 +1,68 @@
+/* Tema claro (por defecto) y modo oscuro vía html.dark-mode */
+
+html.dark-mode body {
+	background-color: #2b2b2b;
+	color: #e8e8e8;
+}
+
+html.dark-mode h1,
+html.dark-mode h2,
+html.dark-mode h3,
+html.dark-mode label,
+html.dark-mode p,
+html.dark-mode a:not(.btn):not(.nav-link):not(.navbar-brand) {
+	color: #e8e8e8;
+}
+
+html.dark-mode .table {
+	color: #e8e8e8;
+	--bs-table-bg: transparent;
+	--bs-table-striped-bg: rgba(255, 255, 255, 0.05);
+	--bs-table-striped-color: #e8e8e8;
+	--bs-table-hover-bg: rgba(255, 255, 255, 0.08);
+	--bs-table-hover-color: #e8e8e8;
+	--bs-table-border-color: #555;
+}
+
+html.dark-mode .table > :not(caption) > * > * {
+	color: #e8e8e8;
+	border-bottom-color: #555;
+}
+
+html.dark-mode .form-control,
+html.dark-mode .form-select {
+	background-color: #3a3a3a;
+	border-color: #555;
+	color: #e8e8e8;
+}
+
+html.dark-mode .form-control:focus,
+html.dark-mode .form-select:focus {
+	background-color: #3a3a3a;
+	border-color: #6ea8fe;
+	color: #e8e8e8;
+}
+
+html.dark-mode .form-control::placeholder {
+	color: #aaa;
+}
+
+.theme-switch {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-left: auto;
+	white-space: nowrap;
+}
+
+.theme-switch .form-check-input {
+	cursor: pointer;
+	width: 2.5em;
+	height: 1.25em;
+}
+
+.theme-switch .form-check-label {
+	color: rgba(255, 255, 255, 0.85);
+	user-select: none;
+	cursor: pointer;
+}

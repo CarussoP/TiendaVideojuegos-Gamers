@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hibernate-mapping package="mx.com.cursodia.javaEE2022.Beans">
+	<class name="ProveedorPlataforma" table="proveedores_plataformas">
+		<id name="pp_id" type="int" column="pp_id">
+			<generator class="native" />
+		</id>
+		<many-to-one name="proveedor" class="Proveedor" column="pp_cat_prov_id" not-null="true" />
+		<many-to-one name="plataforma" class="Plataforma" column="pp_cat_pla_id" not-null="true" />
+	</class>
+</hibernate-mapping>

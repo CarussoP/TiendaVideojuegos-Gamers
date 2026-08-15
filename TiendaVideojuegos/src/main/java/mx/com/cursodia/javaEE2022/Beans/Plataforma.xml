@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hibernate-mapping package="mx.com.cursodia.javaEE2022.Beans">
+	<class name="Plataforma" table="cat_plataformas">
+		<id name="cat_pla_id" type="int" column="cat_pla_id">
+			<generator class="native" />
+		</id>
+		<property name="cat_pla_nombre" type="string" column="cat_pla_nombre" />
+		<property name="cat_pla_compania" type="string" column="cat_pla_compania" />
+	</class>
+</hibernate-mapping>
