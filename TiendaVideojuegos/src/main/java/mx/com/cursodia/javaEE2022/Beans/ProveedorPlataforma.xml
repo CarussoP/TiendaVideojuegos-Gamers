@@ -4,7 +4,8 @@
 		<id name="pp_id" type="int" column="pp_id">
 			<generator class="native" />
 		</id>
-		<many-to-one name="proveedor" class="Proveedor" column="pp_cat_prov_id" not-null="true" />
-		<many-to-one name="plataforma" class="Plataforma" column="pp_cat_pla_id" not-null="true" />
+		<!-- lazy=false: JSPs leen proveedor/plataforma fuera de la Session -->
+		<many-to-one name="proveedor" class="Proveedor" column="pp_cat_prov_id" not-null="true" lazy="false" />
+		<many-to-one name="plataforma" class="Plataforma" column="pp_cat_pla_id" not-null="true" lazy="false" />
 	</class>
 </hibernate-mapping>

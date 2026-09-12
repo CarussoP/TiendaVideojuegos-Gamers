@@ -47,7 +47,10 @@ public class VideojuegoCatalogo
 		Session session = HibernateHelper.getSessionFactory().openSession();
 		try
 		{
-			return session.createQuery("FROM VideojuegoCatalogo ORDER BY cat_vid_nombre").list();
+			return session.createQuery(
+					"SELECT DISTINCT c FROM VideojuegoCatalogo c "
+					+ "LEFT JOIN FETCH c.plataforma "
+					+ "ORDER BY c.cat_vid_nombre").list();
 		}
 		catch(Exception e)
 		{
@@ -64,7 +67,12 @@ public class VideojuegoCatalogo
 		Session session = HibernateHelper.getSessionFactory().openSession();
 		try
 		{
-			return session.get(VideojuegoCatalogo.class, id);
+			return session.createQuery(
+					"SELECT c FROM VideojuegoCatalogo c "
+					+ "LEFT JOIN FETCH c.plataforma "
+					+ "WHERE c.cat_vid_id = :id", VideojuegoCatalogo.class)
+					.setParameter("id", id)
+					.uniqueResult();
 		}
 		catch(Exception e)
 		{

@@ -2,10 +2,10 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>TiendaVideojuegos</groupId>
   <artifactId>TiendaVideojuegos</artifactId>
-  <version>0.1.0-20260815T175153Z</version>
+  <version>0.2.0-20260912T174933Z</version>
   <packaging>war</packaging>
   <name>Tienda de Videojuegos</name>
-  <description>Proyecto Realizado para JavaEE 2022 — respaldo 0.1.0-20260815T175153Z</description>
+  <description>Proyecto Realizado para JavaEE 2022 — checkpoint 0.2.0-20260912T174933Z (pre ISP + DAO)</description>
   <dependencies>
 	<!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
 	<dependency>
@@ -49,14 +49,32 @@
 	    <artifactId>jaxb-runtime</artifactId>
 	    <version>2.3.9</version>
 	</dependency>
+	<!-- https://mvnrepository.com/artifact/com.google.code.gson/gson -->
+	<dependency>
+	    <groupId>com.google.code.gson</groupId>
+	    <artifactId>gson</artifactId>
+	    <version>2.11.0</version>
+	</dependency>
   </dependencies>
   <build>
+    <!-- Hibernate mappings y cfg viven junto al código en src/main/java -->
+    <resources>
+      <resource>
+        <directory>src/main/java</directory>
+        <includes>
+          <include>**/*.xml</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+    </resources>
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.8.1</version>
         <configuration>
-          <release>16</release>
+          <release>11</release>
         </configuration>
       </plugin>
       <plugin>

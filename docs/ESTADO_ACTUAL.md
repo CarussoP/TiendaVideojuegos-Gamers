@@ -1,7 +1,8 @@
 # Estado actual del proyecto — Tienda Videojuegos "Gamers"
 
-**Versión:** `0.1.0-20260815T175153Z`  
-**Fecha/hora del respaldo (UTC):** `2026-08-15 17:51:53 UTC`  
+**Versión:** `0.2.0-20260912T174933Z`  
+**Última actualización (UTC):** `2026-09-12T17:49:33Z`  
+**Branch de trabajo:** `refactor/isp-dao`  
 **Formato de versión:** `MAJOR.MINOR.PATCH-YYYYMMDDTHHMMSSZ`
 
 ---
@@ -14,35 +15,44 @@ Origen académico: curso **Java EE 2022** (`mx.com.cursodia.javaEE2022`), con re
 
 ---
 
-## 2. Versión de este respaldo
+## 2. Versión de este checkpoint
 
 | Concepto | Valor |
 |----------|--------|
-| Versión semántica + timestamp | `0.1.0-20260815T175153Z` |
+| Versión anterior | `0.1.0-20260815T175153Z` |
+| Versión actual | `0.2.0-20260912T174933Z` |
 | Archivo de versión | [`VERSION`](../VERSION) en la raíz del repo |
-| Significado | Primera versión documentada/respaldada en GitHub (`0.1.0`) en el instante UTC indicado |
+| Branch GitHub | `refactor/isp-dao` |
+| Significado | Checkpoint previo a la refactorización mayor **ISP + patrón DAO** |
 
 ---
 
-## 3. Arquitectura
+## 3. Estado actual (qué hay hoy)
 
-### Patrón general
+### Arquitectura vigente
 
 ```
-Navegador (JSP + Bootstrap)
+Navegador (JSP + Bootstrap)  ──┐
+                               │
+API JSON (OfertasApiServlet) ──┤
+                               ▼
+Controlador (Servlet por dominio) / Servlet API
+        │  Accion por reflection (OCP)
+        ▼
+Beans con lógica de persistencia estática (Hibernate)
         │
         ▼
-Controlador (Servlet por dominio)
-        │  resuelve Accion por reflection (OCP)
-        ▼
-Accion concreta (Command)
-        │
-        ▼
-Beans / Hibernate / MySQL
-        │
-        ▼
-Forward a JSP de respuesta
+MySQL (BD `gamers`)
 ```
+
+### Lo implementado hasta `0.2.0`
+
+- MVC + patrón **Command** (`Accion` + controladores por dominio)
+- Persistencia **Hibernate 5** con mapeos XML; consultas con `JOIN FETCH` / `lazy="false"` para evitar LazyInitializationException en JSP
+- UI JSP + Bootstrap 5.2 + tema claro/oscuro
+- Dependencia **Gson**; capa inicial **API REST JSON** del módulo Ofertas (`api/ofertas`)
+- Compilación objetivo **Java 11**; recursos XML de Hibernate empaquetados desde `src/main/java`
+- BD local configurable (p. ej. Docker en puerto `3307` mientras XAMPP ocupa `3306`)
 
 ### Dominios y controladores
 
@@ -52,8 +62,7 @@ Forward a JSP de respuesta
 | Proveedores | `ControladorProveedores` | `*.pro` | CRUD + formularios |
 | Plataformas | `ControladorPlataformas` | `*.pla` | CRUD + formularios |
 | Asignaciones | `ControladorAsignaciones` | `*.asig` | Mostrar, insertar, borrar |
-
-La clase base `Accion` resuelve por reflection la clase `{Tipo}Accion` dentro del paquete del dominio, de modo que agregar una acción no exige tocar el controlador (Open/Closed).
+| API Ofertas | `OfertasApiServlet` | `/api/ofertas` | CRUD JSON |
 
 ### Modelo de datos (beans)
 
@@ -65,34 +74,18 @@ La clase base `Accion` resuelve por reflection la clase `{Tipo}Accion` dentro de
 | `Plataforma` | Plataforma / consola |
 | `ProveedorPlataforma` | Asignación proveedor ↔ plataforma |
 
-Mapeos XML Hibernate junto a cada bean; configuración en `hibernate.cfg.xml`.
+**Problema estructural actual:** los beans concentran entidad + acceso a datos (métodos estáticos Hibernate). Eso acopla el dominio a la persistencia y dificulta ISP.
 
 ---
 
-## 4. Capa de presentación (estado UI)
+## 4. Siguiente paso (esta branch)
 
-### Vistas JSP
+Refactorización mayor orientada a:
 
-- `index.jsp` — home
-- `videojuegos/` — listado, formulario, buscar proveedores
-- `proveedores/` — listado y formulario
-- `plataformas/` — listado y formulario
-- `asignaciones/` — listado y formulario
-- `Error.jsp` — página de error (incluye navbar)
-- `common/nav.jsp` — navbar + Bootstrap + tema
+1. **ISP (Interface Segregation Principle)** — interfaces de acceso a datos segregadas por responsabilidad/dominio, sin forzar a los clientes a depender de métodos que no usan.
+2. **Patrón DAO** — extraer la persistencia de los beans hacia DAOs (p. ej. Hibernate) detrás de esas interfaces; los beans quedan como modelo de dominio.
 
-### Tema claro / oscuro (implementado)
-
-- Slider **Modo oscuro** en la esquina superior derecha del navbar
-- Preferencia persistida en `localStorage` (`gamers-theme`)
-- Estilos: `webapp/css/theme.css`
-- Script: `webapp/js/theme.js`
-- Aplica a todas las vistas que incluyen `nav.jsp`
-
-### Branding
-
-- Marca **Gamers** en el navbar
-- Icono de control (CDN Flaticon) debajo del nombre
+Alcance previsto: capas `dao` / interfaces, adaptación de `Accion`, controladores y API Ofertas para consumir DAOs en lugar de métodos estáticos en beans.
 
 ---
 
@@ -106,39 +99,30 @@ Mapeos XML Hibernate junto a cada bean; configuración en `hibernate.cfg.xml`.
 | jstl | 1.2 |
 | javax.servlet-api | 4.0.1 (provided) |
 | jaxb-api / jaxb-runtime | 2.3.x |
+| gson | 2.11.0 |
 
-Compilación: **Java 16** (`maven-compiler-plugin` release 16). Empaquetado: **WAR**.
-
----
-
-## 6. Qué incluye este respaldo en GitHub
-
-- Código fuente bajo `TiendaVideojuegos/src`
-- `pom.xml`
-- Documentación (`README.md`, este archivo, `VERSION`)
-- `.gitignore` (excluye `target/`, metadatos Eclipse, etc.)
-
-**No** se versiona el directorio `target/` (artefactos de compilación).
+Compilación: **Java 11**. Empaquetado: **WAR**.
 
 ---
 
-## 7. Limitaciones / pendientes conocidos
+## 6. Limitaciones / pendientes conocidos
 
-- Credenciales de BD en `hibernate.cfg.xml` orientadas a entorno local (`root` / sin contraseña)
-- Scripts SQL de esquema no incluidos en este snapshot (la app espera BD `gamers` ya creada)
+- Credenciales de BD en `hibernate.cfg.xml` orientadas a entorno local
+- Scripts SQL de esquema no incluidos (la app espera BD `gamers` ya creada)
 - Sin autenticación de usuarios en la aplicación web
-- Pruebas sueltas en paquete `pruebas` (Hibernate / Log4j), no suite de tests automatizados
+- Persistencia aún embebida en beans (se aborda en el siguiente paso ISP + DAO)
+- Pruebas sueltas en paquete `pruebas`, no suite automatizada
 
 ---
 
-## 8. Cómo reproducir el entorno
+## 7. Cómo reproducir el entorno
 
 1. Crear BD MySQL `gamers` y tablas según el modelo Hibernate.
-2. Ajustar `hibernate.cfg.xml`.
+2. Ajustar `hibernate.cfg.xml` (host/puerto/credenciales).
 3. `mvn clean package` en `TiendaVideojuegos/`.
 4. Desplegar el WAR en Tomcat (u otro contenedor Servlet 4).
-5. Abrir la app y usar el menú; probar el toggle de modo oscuro.
+5. Abrir la app (JSP) y/o consumir `/api/ofertas`.
 
 ---
 
-*Documento generado para el respaldo GitHub de la versión `0.1.0-20260815T175153Z`.*
+*Documento actualizado para el checkpoint GitHub `0.2.0-20260912T174933Z` en la branch `refactor/isp-dao`.*

@@ -2,7 +2,8 @@
 <hibernate-configuration>
 <session-factory>
 <property name="connection.driver_class">com.mysql.cj.jdbc.Driver</property>
-<property name="connection.url">jdbc:mysql://localhost/gamers?serverTimezone=UTC</property>
+<!-- Docker GamersDB: puerto 3307 mientras XAMPP ocupa 3306. Tras migrar: localhost:3306 o localhost/gamers -->
+<property name="connection.url">jdbc:mysql://localhost:3307/gamers?serverTimezone=UTC</property>
 <property name="connection.username">root</property>
 <property name="connection.password"></property>
 <property name="connection.pool_size">5</property>

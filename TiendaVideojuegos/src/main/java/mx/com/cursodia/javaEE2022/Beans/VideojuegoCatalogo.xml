@@ -5,7 +5,8 @@
 			<generator class="native" />
 		</id>
 		<property name="cat_vid_nombre" type="string" column="cat_vid_nombre" />
-		<many-to-one name="plataforma" class="Plataforma" column="cat_vid_pla_id" />
+		<!-- lazy=false: JSPs leen plataforma fuera de la Session -->
+		<many-to-one name="plataforma" class="Plataforma" column="cat_vid_pla_id" lazy="false" />
 		<property name="cat_vid_inventario" type="int" column="cat_vid_inventario" />
 	</class>
 </hibernate-mapping>

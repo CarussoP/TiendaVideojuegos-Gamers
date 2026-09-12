@@ -63,7 +63,11 @@ public class Videojuego
 		Session session = HibernateHelper.getSessionFactory().openSession();
 		try
 		{
-			return session.createQuery("FROM Videojuego").list();
+			return session.createQuery(
+					"SELECT DISTINCT v FROM Videojuego v "
+					+ "JOIN FETCH v.videojuegoCatalogo c "
+					+ "LEFT JOIN FETCH c.plataforma "
+					+ "JOIN FETCH v.proveedor").list();
 		}
 		catch(Exception e)
 		{
@@ -80,7 +84,14 @@ public class Videojuego
 		Session session = HibernateHelper.getSessionFactory().openSession();
 		try
 		{
-			return session.get(Videojuego.class, id);
+			return session.createQuery(
+					"SELECT v FROM Videojuego v "
+					+ "JOIN FETCH v.videojuegoCatalogo c "
+					+ "LEFT JOIN FETCH c.plataforma "
+					+ "JOIN FETCH v.proveedor "
+					+ "WHERE v.vj_id = :id", Videojuego.class)
+					.setParameter("id", id)
+					.uniqueResult();
 		}
 		catch(Exception e)
 		{
@@ -98,7 +109,12 @@ public class Videojuego
 		Session session = HibernateHelper.getSessionFactory().openSession();
 		try
 		{
-			return session.createQuery("FROM Videojuego v WHERE v.proveedor.cat_prov_id = :idProv")
+			return session.createQuery(
+					"SELECT DISTINCT v FROM Videojuego v "
+					+ "JOIN FETCH v.videojuegoCatalogo c "
+					+ "LEFT JOIN FETCH c.plataforma "
+					+ "JOIN FETCH v.proveedor "
+					+ "WHERE v.proveedor.cat_prov_id = :idProv")
 					.setParameter("idProv", cat_prov_id)
 					.list();
 		}
@@ -124,12 +140,15 @@ public class Videojuego
 		Session session = HibernateHelper.getSessionFactory().openSession();
 		try
 		{
-			String hql = "FROM Videojuego v "
-					+ "WHERE v.videojuegoCatalogo.cat_vid_id = :catVidId "
+			String hql = "SELECT DISTINCT v FROM Videojuego v "
+					+ "JOIN FETCH v.videojuegoCatalogo c "
+					+ "LEFT JOIN FETCH c.plataforma "
+					+ "JOIN FETCH v.proveedor "
+					+ "WHERE c.cat_vid_id = :catVidId "
 					+ "AND v.vj_cantidad >= :cantidad "
 					+ "AND EXISTS (FROM ProveedorPlataforma pp "
 					+ "            WHERE pp.proveedor = v.proveedor "
-					+ "            AND pp.plataforma = v.videojuegoCatalogo.plataforma) "
+					+ "            AND pp.plataforma = c.plataforma) "
 					+ "ORDER BY v.vj_precio_compra ASC";
 			Query<Videojuego> query = session.createQuery(hql, Videojuego.class);
 			query.setParameter("catVidId", cat_vid_id);
@@ -146,14 +165,17 @@ public class Videojuego
 		}
 	}
 
-	public static void insertar(Videojuego oferta) throws DataBaseException
+	/** Inserta la oferta; el ID lo genera la BD (AUTO_INCREMENT / generator native). */
+	public static int insertar(Videojuego oferta) throws DataBaseException
 	{
 		Session session = HibernateHelper.getSessionFactory().openSession();
 		Transaction transaction = session.beginTransaction();
 		try
 		{
 			session.persist(oferta);
+			session.flush(); // fuerza el INSERT para poblar vj_id
 			transaction.commit();
+			return oferta.getVj_id();
 		}
 		catch(Exception e)
 		{

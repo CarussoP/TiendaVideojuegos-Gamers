@@ -43,7 +43,10 @@ public class ProveedorPlataforma
 		Session session = HibernateHelper.getSessionFactory().openSession();
 		try
 		{
-			return session.createQuery("FROM ProveedorPlataforma").list();
+			return session.createQuery(
+					"SELECT DISTINCT pp FROM ProveedorPlataforma pp "
+					+ "JOIN FETCH pp.proveedor "
+					+ "JOIN FETCH pp.plataforma").list();
 		}
 		catch(Exception e)
 		{
