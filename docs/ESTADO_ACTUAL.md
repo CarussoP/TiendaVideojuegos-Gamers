@@ -2,7 +2,11 @@
 
 **Versión:** `0.1.0-20260815T175153Z`  
 **Fecha/hora del respaldo (UTC):** `2026-08-15 17:51:53 UTC`  
+**Branch:** `main` (respaldo inicial)  
 **Formato de versión:** `MAJOR.MINOR.PATCH-YYYYMMDDTHHMMSSZ`
+
+> Registro de **todas** las branches/checkpoints: [BRANCHES.md](BRANCHES.md).  
+> Los snapshots posteriores viven en sus propias branches y **no** se fusionan a `main`.
 
 ---
 

@@ -1,0 +1,42 @@
+---
+description: Política de branches-checkpoint (snapshots). Invocar al crear/congelar una nueva versión del proyecto.
+alwaysApply: false
+---
+
+# Política de branches (checkpoints / snapshots)
+
+Las branches de este repo **no son features para merge**. Son **snapshots** del estado del proyecto en un momento de la refactorización continua.
+
+## Reglas obligatorias
+
+1. **Nunca merge a `main` ni Pull Request** desde una branch de checkpoint. No abrir PR. No fusionar. Solo `push` de la branch snapshot.
+2. **Cada branch documenta su propio snapshot** en Markdown (mínimo):
+   - descripción / propósito del checkpoint
+   - número de versión (`MAJOR.MINOR.PATCH-YYYYMMDDTHHMMSSZ` en `VERSION` + `pom.xml`)
+   - fecha de última actualización (UTC)
+   - arquitectura / patrones del estado congelado (`docs/ESTADO_ACTUAL.md` y `README.md` de esa branch)
+3. **Puntos clave = diff vs versión anterior**: comparar la branch del checkpoint anterior con el estado actual (`git diff <branch-anterior>...HEAD` / archivos cambiados). Documentar en MD qué cambió y por qué; anexar esa documentación a la **nueva** branch.
+4. **`main` mantiene el registro general**: tabla de todas las branches/snapshots y sus características en `docs/BRANCHES.md` (y resumen en `README.md` de `main`). Al crear un checkpoint, **actualizar esa tabla en `main`** con un commit solo de documentación (sin merge del snapshot).
+
+## Flujo al crear un nuevo checkpoint
+
+```
+1. Identificar branch/versión anterior (última fila de docs/BRANCHES.md en main)
+2. Diff: anterior → estado actual → redactar puntos clave en MD
+3. Subir VERSION / pom; actualizar docs de la nueva branch
+4. git checkout -b checkpoint/<version>-<slug>
+5. Commit + push de la branch (sin PR)
+6. En main: actualizar docs/BRANCHES.md (+ resumen README) y push — solo docs
+```
+
+## Naming
+
+- Preferir: `checkpoint/<version>-<slug>` (ej. `checkpoint/0.3.0-mvc-dao-isp-jpa`)
+- Evitar nombres que sugieran merge (`feature/…` hacia main)
+
+## Anti-patrones
+
+- Abrir PR o mergear checkpoint → `main`
+- Branch sin `VERSION` / sin MD de estado / sin fecha
+- Documentar “a ojo” sin comparar con la versión anterior
+- Olvidar actualizar `docs/BRANCHES.md` en `main`

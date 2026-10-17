@@ -9,8 +9,21 @@ Aplicación web Java EE para gestionar el catálogo, proveedores, plataformas y 
 | **Artifact** | `TiendaVideojuegos` (WAR) |
 | **Lenguaje** | Java 16 |
 | **Empaquetado** | Maven WAR |
+| **Rol de `main`** | Respaldo inicial `0.1.0` + **registro general** de checkpoints (sin merge de snapshots) |
 
-## Estado actual (resumen)
+## Registro de checkpoints (branches)
+
+Las demás branches son **snapshots** de la refactorización continua: **no** se hace merge ni Pull Request hacia `main`.  
+Inventario canónico: [docs/BRANCHES.md](docs/BRANCHES.md).  
+Política Cursor: `@branch-checkpoint-policy`.
+
+| Versión | Branch | Qué congela |
+|---------|--------|-------------|
+| `0.1.0-20260815T175153Z` | `main` | Backup inicial: MVC + Command/OCP; Hibernate XML; persistencia en beans |
+| `0.2.0-20260912T174933Z` | `refactor/isp-dao` | Antes de ISP + DAO; API Ofertas; JOIN FETCH |
+| `0.3.0-20261017T173923Z` | `checkpoint/0.3.0-mvc-dao-isp-jpa` | MVC + Command/OCP + DAO + ISP + JPA |
+
+## Estado en `main` (resumen `0.1.0`)
 
 - Arquitectura MVC con patrón **Command** (`Accion` + controladores por dominio)
 - Persistencia con **Hibernate 5** sobre **MySQL** (`gamers`)
@@ -43,7 +56,10 @@ VideojuegosRefactorized/
 ├── VERSION
 ├── README.md
 ├── docs/
-│   └── ESTADO_ACTUAL.md
+│   ├── BRANCHES.md          # registro general de checkpoints (en main)
+│   └── ESTADO_ACTUAL.md     # detalle del estado congelado en esta branch
+├── .cursor/rules/
+│   └── branch-checkpoint-policy.mdc
 └── TiendaVideojuegos/
     ├── pom.xml
     └── src/main/
@@ -83,4 +99,6 @@ mvn clean package
 
 ## Documentación adicional
 
-Ver [docs/ESTADO_ACTUAL.md](docs/ESTADO_ACTUAL.md) para el detalle del estado del proyecto en esta versión.
+- [docs/BRANCHES.md](docs/BRANCHES.md) — registro general de todas las branches/checkpoints
+- [docs/ESTADO_ACTUAL.md](docs/ESTADO_ACTUAL.md) — detalle del estado congelado en **esta** branch (`0.1.0` en `main`)
+- Regla Cursor `@branch-checkpoint-policy` — política de snapshots (sin merge a `main`)
