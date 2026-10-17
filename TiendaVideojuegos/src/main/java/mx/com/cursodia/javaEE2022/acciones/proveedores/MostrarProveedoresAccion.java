@@ -7,16 +7,20 @@ import javax.servlet.http.HttpServletResponse;
 
 import mx.com.cursodia.javaEE2022.Beans.Proveedor;
 import mx.com.cursodia.javaEE2022.DataBaseH.DataBaseException;
+import mx.com.cursodia.javaEE2022.dao.DaoFactory;
+import mx.com.cursodia.javaEE2022.dao.interfaces.IProveedorConsultaDAO;
 
 public class MostrarProveedoresAccion extends AccionProveedores
 {
+	private final IProveedorConsultaDAO proveedorConsultaDAO = DaoFactory.getProveedorConsultaDAO();
+
 	@Override
 	public String ejecutar(HttpServletRequest request, HttpServletResponse response)
 	{
 		List<Proveedor> listaDeProveedores = null;
 		try
 		{
-			listaDeProveedores = Proveedor.buscarTodos();
+			listaDeProveedores = proveedorConsultaDAO.buscarTodos();
 		}
 		catch(DataBaseException e)
 		{

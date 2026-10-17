@@ -18,6 +18,11 @@ import mx.com.cursodia.javaEE2022.Beans.Videojuego;
 import mx.com.cursodia.javaEE2022.Beans.VideojuegoCatalogo;
 import mx.com.cursodia.javaEE2022.DataBaseH.DataBaseException;
 import mx.com.cursodia.javaEE2022.api.JsonUtil;
+import mx.com.cursodia.javaEE2022.dao.DaoFactory;
+import mx.com.cursodia.javaEE2022.dao.interfaces.IProveedorConsultaDAO;
+import mx.com.cursodia.javaEE2022.dao.interfaces.IVideojuegoCatalogoConsultaDAO;
+import mx.com.cursodia.javaEE2022.dao.interfaces.IVideojuegoComandoDAO;
+import mx.com.cursodia.javaEE2022.dao.interfaces.IVideojuegoConsultaDAO;
 
 /**
  * API JSON CRUD del modulo Ofertas.
@@ -42,6 +47,11 @@ import mx.com.cursodia.javaEE2022.api.JsonUtil;
 public class OfertasApiServlet extends HttpServlet
 {
 	private static final long serialVersionUID = 1L;
+
+	private final IVideojuegoConsultaDAO videojuegoConsultaDAO = DaoFactory.getVideojuegoConsultaDAO();
+	private final IVideojuegoComandoDAO videojuegoComandoDAO = DaoFactory.getVideojuegoComandoDAO();
+	private final IProveedorConsultaDAO proveedorConsultaDAO = DaoFactory.getProveedorConsultaDAO();
+	private final IVideojuegoCatalogoConsultaDAO catalogoConsultaDAO = DaoFactory.getVideojuegoCatalogoConsultaDAO();
 
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -95,8 +105,8 @@ public class OfertasApiServlet extends HttpServlet
 		{
 			JsonObject body = JsonUtil.readJsonObject(request);
 			Videojuego oferta = buildOfertaFromBody(body, null);
-			int nuevoId = (int) Videojuego.insertar(oferta);
-			Videojuego creada = Videojuego.buscarPorId(nuevoId);
+			int nuevoId = videojuegoComandoDAO.insertar(oferta);
+			Videojuego creada = videojuegoConsultaDAO.buscarPorId(nuevoId);
 			JsonUtil.writeJson(response, HttpServletResponse.SC_CREATED, OfertaDtoMapper.fromOferta(creada));
 		}
 		catch(IllegalArgumentException | JsonSyntaxException e)
@@ -124,7 +134,7 @@ public class OfertasApiServlet extends HttpServlet
 						"PUT requiere /api/ofertas/{id}");
 				return;
 			}
-			Videojuego existente = Videojuego.buscarPorId(id);
+			Videojuego existente = videojuegoConsultaDAO.buscarPorId(id);
 			if(existente == null)
 			{
 				JsonUtil.writeError(response, HttpServletResponse.SC_NOT_FOUND,
@@ -133,8 +143,8 @@ public class OfertasApiServlet extends HttpServlet
 			}
 			JsonObject body = JsonUtil.readJsonObject(request);
 			Videojuego oferta = buildOfertaFromBody(body, id);
-			Videojuego.actualizar(oferta);
-			Videojuego actualizada = Videojuego.buscarPorId(id);
+			videojuegoComandoDAO.actualizar(oferta);
+			Videojuego actualizada = videojuegoConsultaDAO.buscarPorId(id);
 			JsonUtil.writeJson(response, HttpServletResponse.SC_OK, OfertaDtoMapper.fromOferta(actualizada));
 		}
 		catch(IllegalArgumentException | JsonSyntaxException e)
@@ -162,7 +172,7 @@ public class OfertasApiServlet extends HttpServlet
 						"DELETE requiere /api/ofertas/{id}");
 				return;
 			}
-			boolean borrada = Videojuego.borrar(id);
+			boolean borrada = videojuegoComandoDAO.borrar(id);
 			if(!borrada)
 			{
 				JsonUtil.writeError(response, HttpServletResponse.SC_NOT_FOUND,
@@ -196,14 +206,14 @@ public class OfertasApiServlet extends HttpServlet
 				|| "Seleccionar".equalsIgnoreCase(proveedorParam)
 				|| "Todos".equalsIgnoreCase(proveedorParam))
 		{
-			ofertas = Videojuego.buscarTodos();
+			ofertas = videojuegoConsultaDAO.buscarTodos();
 		}
 		else
 		{
-			ofertas = Videojuego.filtrarPorProveedor(Integer.parseInt(proveedorParam));
+			ofertas = videojuegoConsultaDAO.filtrarPorProveedor(Integer.parseInt(proveedorParam));
 		}
 
-		List<Proveedor> proveedores = Proveedor.buscarTodos();
+		List<Proveedor> proveedores = proveedorConsultaDAO.buscarTodos();
 		Map<String, Object> body = new LinkedHashMap<>();
 		body.put("ofertas", OfertaDtoMapper.fromOfertas(ofertas));
 		body.put("proveedores", OfertaDtoMapper.fromProveedores(proveedores));
@@ -213,14 +223,14 @@ public class OfertasApiServlet extends HttpServlet
 	private void formData(HttpServletResponse response) throws DataBaseException, IOException
 	{
 		Map<String, Object> body = new LinkedHashMap<>();
-		body.put("catalogo", OfertaDtoMapper.fromCatalogos(VideojuegoCatalogo.buscarTodos()));
-		body.put("proveedores", OfertaDtoMapper.fromProveedores(Proveedor.buscarTodos()));
+		body.put("catalogo", OfertaDtoMapper.fromCatalogos(catalogoConsultaDAO.buscarTodos()));
+		body.put("proveedores", OfertaDtoMapper.fromProveedores(proveedorConsultaDAO.buscarTodos()));
 		JsonUtil.writeJson(response, HttpServletResponse.SC_OK, body);
 	}
 
 	private void detalle(int id, HttpServletResponse response) throws DataBaseException, IOException
 	{
-		Videojuego oferta = Videojuego.buscarPorId(id);
+		Videojuego oferta = videojuegoConsultaDAO.buscarPorId(id);
 		if(oferta == null)
 		{
 			JsonUtil.writeError(response, HttpServletResponse.SC_NOT_FOUND, "Oferta no encontrada: " + id);
@@ -248,12 +258,12 @@ public class OfertasApiServlet extends HttpServlet
 			throw new IllegalArgumentException("Precios y cantidad no pueden ser negativos");
 		}
 
-		VideojuegoCatalogo catalogo = VideojuegoCatalogo.buscarPorId(catVidId);
+		VideojuegoCatalogo catalogo = catalogoConsultaDAO.buscarPorId(catVidId);
 		if(catalogo == null)
 		{
 			throw new IllegalArgumentException("Catalogo no encontrado: " + catVidId);
 		}
-		Proveedor proveedor = Proveedor.buscarPorId(catProvId);
+		Proveedor proveedor = proveedorConsultaDAO.buscarPorId(catProvId);
 		if(proveedor == null)
 		{
 			throw new IllegalArgumentException("Proveedor no encontrado: " + catProvId);
@@ -274,7 +284,6 @@ public class OfertasApiServlet extends HttpServlet
 		{
 			return pathInfo;
 		}
-		// Cuando el mapping es exacto /api/ofertas, pathInfo es null.
 		return null;
 	}
 

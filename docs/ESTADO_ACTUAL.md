@@ -1,33 +1,51 @@
 # Estado actual del proyecto — Tienda Videojuegos "Gamers"
 
-**Versión:** `0.2.0-20260912T174933Z`  
-**Última actualización (UTC):** `2026-09-12T17:49:33Z`  
-**Branch de trabajo:** `refactor/isp-dao`  
+**Versión:** `0.3.0-20261017T173923Z`  
+**Última actualización (UTC):** `2026-10-17T17:39:23Z`  
+**Branch de checkpoint:** `checkpoint/0.3.0-mvc-dao-isp-jpa`  
 **Formato de versión:** `MAJOR.MINOR.PATCH-YYYYMMDDTHHMMSSZ`
+
+> Esta branch **congela** el estado del proyecto tras completar la refactorización a **DAO + ISP + JPA**. Sirve como línea base documentada antes de la siguiente refactorización mayor.
 
 ---
 
 ## 1. Qué es este proyecto
 
-Aplicación web de **back-office** para una tienda de videojuegos llamada **Gamers**. No es un videojuego: administra catálogos, proveedores, plataformas, asignaciones proveedor–plataforma y **ofertas** (quién vende un título, a qué precios y con qué stock).
+Aplicación web de **back-office** para una tienda de videojuegos llamada **Gamers**. Administra catálogos, proveedores, plataformas, asignaciones proveedor–plataforma y **ofertas** (quién vende un título, a qué precios y con qué stock).
 
-Origen académico: curso **Java EE 2022** (`mx.com.cursodia.javaEE2022`), con refactorización posterior (módulos por dominio, OCP en resolución de acciones, catálogo separado de ofertas).
+Origen académico: curso **Java EE 2022** (`mx.com.cursodia.javaEE2022`).
 
 ---
 
-## 2. Versión de este checkpoint
+## 2. Historial de versiones / branches de checkpoint
+
+| Versión | Branch | Qué congela |
+|---------|--------|-------------|
+| `0.1.0-20260815T175153Z` | `main` | Respaldo inicial (Hibernate XML, persistencia en beans) |
+| `0.2.0-20260912T174933Z` | `refactor/isp-dao` | Checkpoint **antes** de ISP + DAO |
+| `0.3.0-20261017T173923Z` | `checkpoint/0.3.0-mvc-dao-isp-jpa` | Checkpoint **después** de MVC + Command/OCP + DAO + ISP + JPA |
 
 | Concepto | Valor |
 |----------|--------|
-| Versión anterior | `0.1.0-20260815T175153Z` |
-| Versión actual | `0.2.0-20260912T174933Z` |
-| Archivo de versión | [`VERSION`](../VERSION) en la raíz del repo |
-| Branch GitHub | `refactor/isp-dao` |
-| Significado | Checkpoint previo a la refactorización mayor **ISP + patrón DAO** |
+| Versión anterior | `0.2.0-20260912T174933Z` |
+| Versión actual | `0.3.0-20261017T173923Z` |
+| Archivo de versión | [`VERSION`](../VERSION) |
+| Significado | Congela arquitectura con patrones listados en §3 |
 
 ---
 
-## 3. Estado actual (qué hay hoy)
+## 3. Patrones e implementaciones en esta versión
+
+| Patrón / principio | Dónde vive | Rol |
+|--------------------|------------|-----|
+| **MVC** | `controlador/` + `acciones/` + JSP en `webapp/` | Separación presentación / control / datos |
+| **Command** | `acciones.Accion` y `*Accion` por dominio | Cada URL resuelve una acción ejecutable |
+| **OCP** (Open/Closed) | `Accion.resolver(...)` por reflection | Agregar acción = nueva clase; no tocar controladores |
+| **DAO** | `dao.interfaces` + `dao.jpa` + `DaoFactory` | Persistencia fuera de las entidades |
+| **ISP** (Interface Segregation) | `I*ConsultaDAO` / `I*ComandoDAO` | Clientes dependen solo de lectura o escritura |
+| **JPA** | `@Entity` en Beans + `META-INF/persistence.xml` + `JpaHelper` | ORM estándar; Hibernate 5 como proveedor |
+| **Factory** | `DaoFactory` | Punto único de obtención de DAOs |
+| **DTO / Mapper** (API) | `api.ofertas.OfertaDtoMapper` | JSON sin exponer entidades crudas al cliente |
 
 ### Arquitectura vigente
 
@@ -37,22 +55,47 @@ Navegador (JSP + Bootstrap)  ──┐
 API JSON (OfertasApiServlet) ──┤
                                ▼
 Controlador (Servlet por dominio) / Servlet API
-        │  Accion por reflection (OCP)
+        │  Accion por reflection (Command + OCP)
         ▼
-Beans con lógica de persistencia estática (Hibernate)
+DaoFactory → interfaces ISP (Consulta / Comando)
         │
         ▼
-MySQL (BD `gamers`)
+DAO JPA (*DAOJpa) → EntityManager / JPQL
+        │
+        ▼
+Entidades JPA (@Entity) + MySQL (BD `gamers`)
+        │
+        ▼
+Hibernate 5 como proveedor (persistence.xml → gamersPU)
 ```
 
-### Lo implementado hasta `0.2.0`
+---
 
-- MVC + patrón **Command** (`Accion` + controladores por dominio)
-- Persistencia **Hibernate 5** con mapeos XML; consultas con `JOIN FETCH` / `lazy="false"` para evitar LazyInitializationException en JSP
-- UI JSP + Bootstrap 5.2 + tema claro/oscuro
-- Dependencia **Gson**; capa inicial **API REST JSON** del módulo Ofertas (`api/ofertas`)
-- Compilación objetivo **Java 11**; recursos XML de Hibernate empaquetados desde `src/main/java`
-- BD local configurable (p. ej. Docker en puerto `3307` mientras XAMPP ocupa `3306`)
+## 4. Estructura del repositorio (congelada)
+
+```
+VideojuegosRefactorized/
+├── VERSION                          # 0.3.0-20261017T173923Z
+├── README.md
+├── docs/
+│   └── ESTADO_ACTUAL.md             # este documento
+└── TiendaVideojuegos/
+    ├── pom.xml
+    └── src/main/
+        ├── java/mx/com/cursodia/javaEE2022/
+        │   ├── Beans/               # Entidades JPA
+        │   ├── DataBaseH/           # JpaHelper, DataBaseException
+        │   ├── dao/
+        │   │   ├── DaoFactory.java
+        │   │   ├── interfaces/      # ISP: Consulta / Comando / DAO
+        │   │   └── jpa/             # Implementaciones EntityManager
+        │   ├── acciones/            # Command por dominio
+        │   ├── controlador/         # Servlets MVC
+        │   └── api/                 # REST JSON (Ofertas)
+        ├── resources/META-INF/
+        │   └── persistence.xml      # Unidad gamersPU
+        └── webapp/                  # JSP, CSS/JS tema, web.xml
+```
 
 ### Dominios y controladores
 
@@ -64,28 +107,25 @@ MySQL (BD `gamers`)
 | Asignaciones | `ControladorAsignaciones` | `*.asig` | Mostrar, insertar, borrar |
 | API Ofertas | `OfertasApiServlet` | `/api/ofertas` | CRUD JSON |
 
-### Modelo de datos (beans)
+### Modelo de datos (entidades JPA)
 
-| Bean | Rol |
-|------|-----|
-| `VideojuegoCatalogo` | Título del catálogo (juego + plataforma) |
-| `Videojuego` | Oferta de un proveedor sobre un título (precios, cantidad) |
-| `Proveedor` | Proveedor |
-| `Plataforma` | Plataforma / consola |
-| `ProveedorPlataforma` | Asignación proveedor ↔ plataforma |
+| Entidad | Tabla | Rol |
+|---------|-------|-----|
+| `VideojuegoCatalogo` | `cat_videojuegos` | Título del catálogo (juego + plataforma) |
+| `Videojuego` | `videojuego` | Oferta de un proveedor (precios, cantidad) |
+| `Proveedor` | `cat_proveedores` | Proveedor |
+| `Plataforma` | `cat_plataformas` | Plataforma / consola |
+| `ProveedorPlataforma` | `proveedores_plataformas` | Asignación proveedor ↔ plataforma |
 
-**Problema estructural actual:** los beans concentran entidad + acceso a datos (métodos estáticos Hibernate). Eso acopla el dominio a la persistencia y dificulta ISP.
+### Capa DAO
 
----
-
-## 4. Siguiente paso (esta branch)
-
-Refactorización mayor orientada a:
-
-1. **ISP (Interface Segregation Principle)** — interfaces de acceso a datos segregadas por responsabilidad/dominio, sin forzar a los clientes a depender de métodos que no usan.
-2. **Patrón DAO** — extraer la persistencia de los beans hacia DAOs (p. ej. Hibernate) detrás de esas interfaces; los beans quedan como modelo de dominio.
-
-Alcance previsto: capas `dao` / interfaces, adaptación de `Accion`, controladores y API Ofertas para consumir DAOs en lugar de métodos estáticos en beans.
+| Paquete / clase | Rol |
+|-----------------|-----|
+| `dao.interfaces` | Contratos ISP (`I*ConsultaDAO`, `I*ComandoDAO`, `I*DAO`) |
+| `dao.jpa` | Implementaciones JPA (`EntityManager` + JPQL) |
+| `dao.DaoFactory` | Acceso a DAOs; expone la interfaz segregada |
+| `DataBaseH.JpaHelper` | `EntityManagerFactory` de `gamersPU` |
+| `META-INF/persistence.xml` | Configuración JPA (driver, URL, entidades, dialecto) |
 
 ---
 
@@ -94,7 +134,8 @@ Alcance previsto: capas `dao` / interfaces, adaptación de `Accion`, controlador
 | Librería | Versión |
 |----------|---------|
 | mysql-connector-java | 8.0.31 |
-| hibernate-core | 5.6.15.Final |
+| javax.persistence-api | 2.2 |
+| hibernate-core (proveedor JPA) | 5.6.15.Final |
 | log4j-core | 2.17.1 |
 | jstl | 1.2 |
 | javax.servlet-api | 4.0.1 (provided) |
@@ -107,22 +148,28 @@ Compilación: **Java 11**. Empaquetado: **WAR**.
 
 ## 6. Limitaciones / pendientes conocidos
 
-- Credenciales de BD en `hibernate.cfg.xml` orientadas a entorno local
+- Credenciales de BD en `persistence.xml` orientadas a entorno local
 - Scripts SQL de esquema no incluidos (la app espera BD `gamers` ya creada)
 - Sin autenticación de usuarios en la aplicación web
-- Persistencia aún embebida en beans (se aborda en el siguiente paso ISP + DAO)
 - Pruebas sueltas en paquete `pruebas`, no suite automatizada
+- API REST solo del módulo Ofertas (otros dominios siguen vía JSP)
 
 ---
 
 ## 7. Cómo reproducir el entorno
 
-1. Crear BD MySQL `gamers` y tablas según el modelo Hibernate.
-2. Ajustar `hibernate.cfg.xml` (host/puerto/credenciales).
+1. Crear BD MySQL `gamers` y tablas según el modelo de entidades JPA.
+2. Ajustar `src/main/resources/META-INF/persistence.xml` (host/puerto/credenciales).
 3. `mvn clean package` en `TiendaVideojuegos/`.
 4. Desplegar el WAR en Tomcat (u otro contenedor Servlet 4).
 5. Abrir la app (JSP) y/o consumir `/api/ofertas`.
 
 ---
 
-*Documento actualizado para el checkpoint GitHub `0.2.0-20260912T174933Z` en la branch `refactor/isp-dao`.*
+## 8. Siguiente paso (fuera de este checkpoint)
+
+Cualquier refactorización mayor posterior debe partir de una **nueva branch** desde este checkpoint, subir versión (`0.4.0-…`) y documentar el objetivo del cambio en `docs/ESTADO_ACTUAL.md`.
+
+---
+
+*Documento de la branch `checkpoint/0.3.0-mvc-dao-isp-jpa` — versión `0.3.0-20261017T173923Z`.*

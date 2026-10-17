@@ -8,6 +8,9 @@ import javax.servlet.http.HttpServletResponse;
 import mx.com.cursodia.javaEE2022.Beans.Proveedor;
 import mx.com.cursodia.javaEE2022.Beans.Videojuego;
 import mx.com.cursodia.javaEE2022.DataBaseH.DataBaseException;
+import mx.com.cursodia.javaEE2022.dao.DaoFactory;
+import mx.com.cursodia.javaEE2022.dao.interfaces.IProveedorConsultaDAO;
+import mx.com.cursodia.javaEE2022.dao.interfaces.IVideojuegoConsultaDAO;
 
 /**
  * Reemplaza el "if" hardcodeado que antes vivia en el Controlador
@@ -17,6 +20,9 @@ import mx.com.cursodia.javaEE2022.DataBaseH.DataBaseException;
  */
 public class FiltrarVideojuegosPorProveedorAccion extends AccionVideojuegos
 {
+	private final IVideojuegoConsultaDAO videojuegoConsultaDAO = DaoFactory.getVideojuegoConsultaDAO();
+	private final IProveedorConsultaDAO proveedorConsultaDAO = DaoFactory.getProveedorConsultaDAO();
+
 	@Override
 	public String ejecutar(HttpServletRequest request, HttpServletResponse response)
 	{
@@ -27,13 +33,13 @@ public class FiltrarVideojuegosPorProveedorAccion extends AccionVideojuegos
 		{
 			if(proveedorParam == null || proveedorParam.equals("Seleccionar"))
 			{
-				listaDeOfertas = Videojuego.buscarTodos();
+				listaDeOfertas = videojuegoConsultaDAO.buscarTodos();
 			}
 			else
 			{
-				listaDeOfertas = Videojuego.filtrarPorProveedor(Integer.parseInt(proveedorParam));
+				listaDeOfertas = videojuegoConsultaDAO.filtrarPorProveedor(Integer.parseInt(proveedorParam));
 			}
-			listaDeProveedores = Proveedor.buscarTodos();
+			listaDeProveedores = proveedorConsultaDAO.buscarTodos();
 		}
 		catch(DataBaseException | NumberFormatException e)
 		{

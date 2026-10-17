@@ -5,9 +5,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import mx.com.cursodia.javaEE2022.Beans.Proveedor;
 import mx.com.cursodia.javaEE2022.DataBaseH.DataBaseException;
+import mx.com.cursodia.javaEE2022.dao.DaoFactory;
+import mx.com.cursodia.javaEE2022.dao.interfaces.IProveedorComandoDAO;
 
 public class ModificarProveedorAccion extends AccionProveedores
 {
+	private final IProveedorComandoDAO proveedorComandoDAO = DaoFactory.getProveedorComandoDAO();
+
 	@Override
 	public String ejecutar(HttpServletRequest request, HttpServletResponse response)
 	{
@@ -17,7 +21,7 @@ public class ModificarProveedorAccion extends AccionProveedores
 			Proveedor proveedor = new Proveedor(request.getParameter("NOM"), request.getParameter("TEL"),
 					request.getParameter("MAIL"), request.getParameter("DIR"));
 			proveedor.setCat_prov_id(id);
-			Proveedor.actualizar(proveedor);
+			proveedorComandoDAO.actualizar(proveedor);
 		}
 		catch(DataBaseException | NumberFormatException e)
 		{

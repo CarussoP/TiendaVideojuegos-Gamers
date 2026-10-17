@@ -1,38 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>TiendaVideojuegos</groupId>
   <artifactId>TiendaVideojuegos</artifactId>
-  <version>0.2.0-20260912T174933Z</version>
+  <version>0.3.0-20261017T173923Z</version>
   <packaging>war</packaging>
   <name>Tienda de Videojuegos</name>
-  <description>Proyecto Realizado para JavaEE 2022 — checkpoint 0.2.0-20260912T174933Z (pre ISP + DAO)</description>
+  <description>Checkpoint 0.3.0 — MVC + Command/OCP + DAO + ISP + JPA (branch checkpoint/0.3.0-mvc-dao-isp-jpa)</description>
   <dependencies>
-	<!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
 	<dependency>
 	    <groupId>mysql</groupId>
 	    <artifactId>mysql-connector-java</artifactId>
 	    <version>8.0.31</version>
 	</dependency>
 
-	<!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
 	<dependency>
 	    <groupId>org.apache.logging.log4j</groupId>
 	    <artifactId>log4j-core</artifactId>
 	    <version>2.17.1</version>
 	</dependency>
-	<!-- https://mvnrepository.com/artifact/javax.servlet.jsp.jstl/jstl-api -->
 	<dependency>
 	    <groupId>javax.servlet</groupId>
 	    <artifactId>jstl</artifactId>
 	    <version>1.2</version>
 	</dependency>
 
-    <!--  https://mvnrepository.com/artifact/org.hibernate/hibernate-core  -->
+	<!-- API JPA (javax.persistence) -->
+	<dependency>
+	    <groupId>javax.persistence</groupId>
+	    <artifactId>javax.persistence-api</artifactId>
+	    <version>2.2</version>
+	</dependency>
+
+	<!-- Proveedor JPA: Hibernate 5.6 (incluye EntityManager) -->
 	<dependency>
 	    <groupId>org.hibernate</groupId>
 	    <artifactId>hibernate-core</artifactId>
 	    <version>5.6.15.Final</version>
 	</dependency>
+
 	<dependency>
     <groupId>javax.servlet</groupId>
     <artifactId>javax.servlet-api</artifactId>
@@ -49,7 +55,6 @@
 	    <artifactId>jaxb-runtime</artifactId>
 	    <version>2.3.9</version>
 	</dependency>
-	<!-- https://mvnrepository.com/artifact/com.google.code.gson/gson -->
 	<dependency>
 	    <groupId>com.google.code.gson</groupId>
 	    <artifactId>gson</artifactId>
@@ -57,14 +62,8 @@
 	</dependency>
   </dependencies>
   <build>
-    <!-- Hibernate mappings y cfg viven junto al código en src/main/java -->
+    <!-- persistence.xml vive en src/main/resources/META-INF -->
     <resources>
-      <resource>
-        <directory>src/main/java</directory>
-        <includes>
-          <include>**/*.xml</include>
-        </includes>
-      </resource>
       <resource>
         <directory>src/main/resources</directory>
       </resource>
